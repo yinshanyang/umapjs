@@ -1,0 +1,23 @@
+{
+  "name": "umapjs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "npm run build:lib -- --watch",
+    "build": "npm run build:lib",
+    "build:lib": "tsc --outDir ./dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Yin Shanyang <me@yinshanyang.com> (http://yinshanyang.com)",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^10.1.2",
+    "@types/numjs": "^0.14.3",
+    "typescript": "^2.8.3"
+  },
+  "dependencies": {
+    "numjs": "^0.15.1"
+  }
+}
