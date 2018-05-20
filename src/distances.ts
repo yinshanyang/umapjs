@@ -1,7 +1,8 @@
 import * as nj from 'numjs'
-
-type NdNumberArray = nj.NdArray<number>
-type Vector = NdNumberArray // shape = [ndim]
+import {
+  NdNumberArray,
+  Vector
+} from './types'
 
 export function euclidean (x: Vector, y: Vector): number {
   let result = 0

@@ -1,11 +1,12 @@
 import * as nj from 'numjs'
-
-type Integer = number
-type Float = number
-type NdNumberArray = nj.NdArray<number>
-type Vector = NdNumberArray // shape = [ndim]
-type State = nj.NdArray<Integer> // shape = [3]
-type Heap = NdNumberArray  // shape = [3, nPoints, size]
+import {
+  Integer,
+  Float,
+  NdNumberArray,
+  Vector,
+  State,
+  Heap
+} from './types'
 
 export function tauRandInt (state: State): number {
   const s0 = (((state.get(0) & 4294967294) << 12) & 0xffffffff) ^ ((((state.get(0) << 13) & 0xffffffff) ^ state.get(0)) >> 19)
