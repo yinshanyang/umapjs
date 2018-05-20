@@ -1,12 +1,9 @@
 import * as nj from 'numjs'
 
 type NdNumberArray = nj.NdArray<number>
+type Vector = NdNumberArray // shape = [ndim]
 
-const ONES = nj.ones(2, 'float64')
-// FIXME: I don’t know how to typecheck this
-// const IDENTITY = nj.array([1, 0, 0, 1], 'float64').reshape(2, 2) // numjs lacks the eye method
-
-export function euclidean (x: NdNumberArray, y: NdNumberArray): number {
+export function euclidean (x: Vector, y: Vector): number {
   let result = 0
   for (let i = x.shape[0]; i--;) {
     result += (x.get(i) - y.get(i)) ** 2
@@ -15,7 +12,8 @@ export function euclidean (x: NdNumberArray, y: NdNumberArray): number {
   return result
 }
 
-export function standardizedEclidean (x: NdNumberArray, y: NdNumberArray, sigma: NdNumberArray = ONES): number {
+export function standardizedEclidean (x: Vector, y: Vector, s: NdNumberArray): number {
+  const sigma = s || nj.ones(x.shape[0], 'float64')
   let result = 0
   for (let i = x.shape[0]; i--;) {
     result += (x.get(i) - y.get(i)) ** 2 / sigma.get(i)
@@ -24,7 +22,7 @@ export function standardizedEclidean (x: NdNumberArray, y: NdNumberArray, sigma:
   return result
 }
 
-export function manhattan (x: NdNumberArray, y: NdNumberArray): number {
+export function manhattan (x: Vector, y: Vector): number {
   let result = 0
   for (let i = x.shape[0]; i--;) {
     result += Math.abs(x.get(i) - y.get(i))
@@ -32,7 +30,7 @@ export function manhattan (x: NdNumberArray, y: NdNumberArray): number {
   return result
 }
 
-export function chebyshev (x: NdNumberArray, y: NdNumberArray): number {
+export function chebyshev (x: Vector, y: Vector): number {
   let result = 0
   for (let i = x.shape[0]; i--;) {
     result = Math.max(result, Math.abs(x.get(i) - y.get(i)))
@@ -40,36 +38,47 @@ export function chebyshev (x: NdNumberArray, y: NdNumberArray): number {
   return result
 }
 
-// export function weightedMinkowski (x: NdNumberArray, y: NdNumberArray, w: NdNumberArray = IDENTITY, p: number = 2): number {
-//   let result = 0
-//   for (let i = x.shape[0]; i--;) {
-//     result += (w.get(i) + Math.abs(x.get(i) - y.get(i)) ** p
-//   }
-//   result = result ** (1 / p)
-//   return result
-// }
+export function minkowski (x: Vector, y: Vector, p: number = 2): number {
+  let result = 0
+  for (let i = x.shape[0]; i--;) {
+    result += (Math.abs(x.get(i) - y.get(i))) ** p
+  }
+  result = result ** (1 / p)
+  return result
+}
 
-// export function mahalanobis (x: NdNumberArray, y: NdNumberArray, vinv: NdNumberArray = IDENTITY): number {
-//   let result = 0
-//   let diff = nj.empty(x.shape[0], 'float64')
-//
-//   for (let i = x.shape[0]; i--;) {
-//     diff.set(i, x.get(i) - y.get(i))
-//   }
-//
-//   for (let i = x.shape[0]; i--;) {
-//     let tmp = 0
-//     for (let j = x.shape[0]; j--;) {
-//       tmp += vinv.get(i, j) * diff.get(j)
-//     }
-//     result += tmp + diff.get(i)
-//   }
-//
-//   result = Math.sqrt(result)
-//   return result
-// }
+export function weightedMinkowski (x: Vector, y: Vector, w: NdNumberArray, p: number = 2): number {
+  const weights = w || nj.ones(x.shape[0], 'float64')
+  let result = 0
+  for (let i = x.shape[0]; i--;) {
+    result += (weights.get(i) * Math.abs(x.get(i) - y.get(i))) ** p
+  }
+  result = result ** (1 / p)
+  return result
+}
 
-export function canberra (x: NdNumberArray, y: NdNumberArray): number {
+export function mahalanobis (x: Vector, y: Vector, v: NdNumberArray): number {
+  const vinv = v || nj.identity(x.shape[0], 'float64')
+  let result = 0
+  let diff = nj.empty(x.shape[0], 'float64')
+
+  for (let i = x.shape[0]; i--;) {
+    diff.set(i, x.get(i) - y.get(i))
+  }
+
+  for (let i = x.shape[0]; i--;) {
+    let tmp = 0
+    for (let j = x.shape[0]; j--;) {
+      tmp += vinv.get(i, j) * diff.get(j)
+    }
+    result += tmp + diff.get(i)
+  }
+
+  result = Math.sqrt(result)
+  return result
+}
+
+export function canberra (x: Vector, y: Vector): number {
   let result = 0
   for (let i = x.shape[0]; i--;) {
     const denominator = Math.abs(x.get(i)) + Math.abs(y.get(i))
@@ -80,7 +89,7 @@ export function canberra (x: NdNumberArray, y: NdNumberArray): number {
   return result
 }
 
-export function brayCurtis(x: NdNumberArray, y: NdNumberArray): number {
+export function brayCurtis(x: Vector, y: Vector): number {
   let result = 0
   let numerator = 0
   let denominator = 0
@@ -94,7 +103,7 @@ export function brayCurtis(x: NdNumberArray, y: NdNumberArray): number {
   return result
 }
 
-export function jaccard (x: NdNumberArray, y: NdNumberArray): number {
+export function jaccard (x: Vector, y: Vector): number {
   let result = 0
   let numNonZero = 0
   let numTrueTrue = 0
@@ -110,7 +119,7 @@ export function jaccard (x: NdNumberArray, y: NdNumberArray): number {
   return result
 }
 
-export function matching (x: NdNumberArray, y: NdNumberArray): number {
+export function matching (x: Vector, y: Vector): number {
   let result = 0
   let numNotEqual = 0
   for (let i = x.shape[0]; i--;) {
@@ -122,7 +131,7 @@ export function matching (x: NdNumberArray, y: NdNumberArray): number {
   return result
 }
 
-export function dice (x: NdNumberArray, y: NdNumberArray): number {
+export function dice (x: Vector, y: Vector): number {
   let result = 0
   let numTrueTrue = 0
   let numNotEqual = 0
@@ -136,7 +145,7 @@ export function dice (x: NdNumberArray, y: NdNumberArray): number {
   return result
 }
 
-export function kulsinski (x: NdNumberArray, y: NdNumberArray): number {
+export function kulsinski (x: Vector, y: Vector): number {
   let result = 0
   let numTrueTrue = 0
   let numNotEqual = 0
@@ -152,7 +161,7 @@ export function kulsinski (x: NdNumberArray, y: NdNumberArray): number {
   return result
 }
 
-export function rogersTanimoto (x: NdNumberArray, y: NdNumberArray): number {
+export function rogersTanimoto (x: Vector, y: Vector): number {
   let result = 0
   let numNotEqual = 0
   for (let i = x.shape[0]; i--;) {
@@ -164,7 +173,7 @@ export function rogersTanimoto (x: NdNumberArray, y: NdNumberArray): number {
   return result
 }
 
-export function russellrao (x: NdNumberArray, y: NdNumberArray): number {
+export function russellrao (x: Vector, y: Vector): number {
   let result = 0
   let numTrueTrue = 0
   for (let i = x.shape[0]; i--;) {
@@ -178,7 +187,7 @@ export function russellrao (x: NdNumberArray, y: NdNumberArray): number {
   return result
 }
 
-export function sokalMichener (x: NdNumberArray, y: NdNumberArray): number {
+export function sokalMichener (x: Vector, y: Vector): number {
   let result = 0
   let numNotEqual = 0
   for (let i = x.shape[0]; i--;) {
@@ -190,7 +199,7 @@ export function sokalMichener (x: NdNumberArray, y: NdNumberArray): number {
   return result
 }
 
-export function sokalSneath (x: NdNumberArray, y: NdNumberArray): number {
+export function sokalSneath (x: Vector, y: Vector): number {
   let result = 0
   let numTrueTrue = 0
   let numNotEqual = 0
@@ -204,7 +213,7 @@ export function sokalSneath (x: NdNumberArray, y: NdNumberArray): number {
   return result
 }
 
-export function haversine (x: NdNumberArray, y: NdNumberArray): number {
+export function haversine (x: Vector, y: Vector): number {
   if (x.shape[0] !== 2) {
     throw new Error('haversine is only defined for 2 dimensional data')
   }
@@ -216,7 +225,7 @@ export function haversine (x: NdNumberArray, y: NdNumberArray): number {
   return result
 }
 
-export function yule (x: NdNumberArray, y: NdNumberArray) {
+export function yule (x: Vector, y: Vector) {
   let result = 0
   let numTrueTrue = 0
   let numTrueFalse = 0
@@ -233,7 +242,7 @@ export function yule (x: NdNumberArray, y: NdNumberArray) {
   return result
 }
 
-export function cosine (x: NdNumberArray, y: NdNumberArray): number {
+export function cosine (x: Vector, y: Vector): number {
   let result = 0
   let normX = 0
   let normY = 0
@@ -250,7 +259,7 @@ export function cosine (x: NdNumberArray, y: NdNumberArray): number {
   return result
 }
 
-export function correlation (x: NdNumberArray, y: NdNumberArray): number {
+export function correlation (x: Vector, y: Vector): number {
   let result = 0
   let muX = 0
   let muY = 0
