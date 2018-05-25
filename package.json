@@ -4,10 +4,11 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "npm run build:lib -- --watch",
     "build": "npm run build:lib",
     "build:lib": "tsc --outDir ./dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "npm run build:lib -- --watch",
+    "test": "ava-ts --verbose",
+    "test:watch": "npm run test -- --watch"
   },
   "keywords": [],
   "author": "Yin Shanyang <me@yinshanyang.com> (http://yinshanyang.com)",
@@ -15,6 +16,9 @@
   "devDependencies": {
     "@types/node": "^10.1.2",
     "@types/numjs": "^0.14.3",
+    "ava": "^0.25.0",
+    "ava-ts": "^0.24.5",
+    "ts-node": "^6.0.5",
     "typescript": "^2.8.3"
   },
   "dependencies": {
