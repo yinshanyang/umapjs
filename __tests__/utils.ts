@@ -11,12 +11,23 @@ test('utils: norm', () => {
 })
 
 test('utils: tauRandInt, returns only postitve integers', () => {
-  const n = 5000
+  const n = 10000
   const state = nj.array([42])
 
   const values = Array(n).fill(0)
     .map(() => utils.tauRandInt(state))
     .filter((d) => d >= 0)
+
+  expect(values.length).toEqual(n)
+})
+
+test('utils: tauRand, returns floats within 0 and 1', () => {
+  const n = 10000
+  const state = nj.array([42])
+
+  const values = Array(n).fill(0)
+    .map(() => utils.tauRand(state))
+    .filter((d) => d >= 0 && d <= 1)
 
   expect(values.length).toEqual(n)
 })

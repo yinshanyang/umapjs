@@ -8,11 +8,10 @@ import {
   Heap
 } from './types'
 
-// fixme: this shouldn't return negative numbers
 export function tauRandInt (state: State): number {
-  const s0 = (((state.get(0) & 4294967294) << 12) & 0xffffffff) ^ ((((state.get(0) << 13) & 0xffffffff) ^ state.get(0)) >> 19)
-  const s1 = (((state.get(1) & 4294967288) << 4) & 0xffffffff) ^ ((((state.get(1) << 2) & 0xffffffff) ^ state.get(1)) >> 25)
-  const s2 = (((state.get(2) & 4294967280) << 17) & 0xffffffff) ^ ((((state.get(2) << 3) & 0xffffffff) ^ state.get(2)) >> 11)
+  const s0 = (((state.get(0) & 4294967294) << 12) & 0x7fffffff) ^ ((((state.get(0) << 13) & 0x7fffffff) ^ state.get(0)) >> 19)
+  const s1 = (((state.get(1) & 4294967288) << 4) & 0x7fffffff) ^ ((((state.get(1) << 2) & 0x7fffffff) ^ state.get(1)) >> 25)
+  const s2 = (((state.get(2) & 4294967280) << 17) & 0x7fffffff) ^ ((((state.get(2) << 3) & 0x7fffffff) ^ state.get(2)) >> 11)
   state.set(0, s0)
   state.set(1, s1)
   state.set(2, s2)
