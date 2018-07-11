@@ -8,10 +8,14 @@ import {
   Heap
 } from './types'
 
+// fixme: this shouldn't return negative numbers
 export function tauRandInt (state: State): number {
   const s0 = (((state.get(0) & 4294967294) << 12) & 0xffffffff) ^ ((((state.get(0) << 13) & 0xffffffff) ^ state.get(0)) >> 19)
   const s1 = (((state.get(1) & 4294967288) << 4) & 0xffffffff) ^ ((((state.get(1) << 2) & 0xffffffff) ^ state.get(1)) >> 25)
   const s2 = (((state.get(2) & 4294967280) << 17) & 0xffffffff) ^ ((((state.get(2) << 3) & 0xffffffff) ^ state.get(2)) >> 11)
+  state.set(0, s0)
+  state.set(1, s1)
+  state.set(2, s2)
   return s0 ^ s1 ^ s2
 }
 
@@ -22,7 +26,7 @@ export function tauRand (state: State): number {
 
 export function norm (vec: Vector): number {
   let result = 0
-  for (let i = vec.shape[0]; i--;) {
+  for (let i = 0; i < vec.shape[0]; i++) {
     result += vec.get(i) ** 2
   }
   result = Math.sqrt(result)
@@ -31,18 +35,20 @@ export function norm (vec: Vector): number {
 
 export function rejectionSample (nSamples: Integer, poolSize: Integer, rngState: State): NdNumberArray {
   let result = nj.empty(nSamples)
-  for (let i = nSamples; i--;) {
+  for (let i = 0; i < nSamples; i++) {
     let rejectSample = true
     let j
     while (rejectSample) {
+      let found = false
       j = tauRandInt(rngState) % poolSize
-      for (let k = i; k--;) {
+      for (let k = 0; k < i; k++) {
         if (j === result.get(k)) {
+          found = true
           break
         }
-        else {
-          rejectSample = false
-        }
+      }
+      if (!found) {
+        rejectSample = false
       }
     }
     result.set(i, j)
@@ -68,7 +74,7 @@ export function heapPush (heap: NdNumberArray, row: Integer, weight: Float, inde
     return 0
   }
 
-  for (let i = heap.shape[2]; i--;) {
+  for (let i = 0; i < heap.shape[2]; i++) {
     if (index === heap.get(0, row, i)) {
       return 0
     }
@@ -119,7 +125,7 @@ export function heapPush (heap: NdNumberArray, row: Integer, weight: Float, inde
 }
 
 export function deheapSort(heap: Heap): Heap {
-  for (let i = heap.shape[1]; i--;) {
+  for (let i = 0; i < heap.shape[1]; i++) {
     const heapEnd = heap.shape[2] - 1
     while (heapEnd >= 0) {
       let root = 0
@@ -164,8 +170,8 @@ export function deheapSort(heap: Heap): Heap {
 
 export function buildCandidates (currentGraph: Heap, nVertices: Integer, nNeighbors: Integer, maxCandidates: Integer, rngState: State): Heap {
   const candidateNeighbors = makeHeap(nVertices, maxCandidates)
-  for (let i = nVertices; i--;) {
-    for (let j = nNeighbors; j--;) {
+  for (let i = 0; i < nVertices; i++) {
+    for (let j = 0; j < nNeighbors; j++) {
       if (currentGraph.get(0, i, j) < 0) {
         const idx = currentGraph.get(0, i, j)
         const isn = currentGraph.get(2, i, j)
